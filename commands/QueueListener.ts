@@ -6,33 +6,35 @@
  */
 
 import { BaseCommand, flags } from '@adonisjs/core/build/standalone';
+import { QueueConfig } from '@ioc:Rlanz/Queue';
 
 export default class QueueListener extends BaseCommand {
-	public static commandName = 'queue:listen';
-	public static description = 'Listen to one or multiple queues';
+  public static commandName = 'queue:listen';
+  public static description = 'Listen to one or multiple queues';
 
-	@flags.array({ alias: 'q', description: 'The queue(s) to listen on' })
-	public queue: string[] = [];
+  @flags.array({ alias: 'q', description: 'The queue(s) to listen on' })
+  public queue: string[] = [];
 
-	public static settings = {
-		loadApp: true,
-		stayAlive: true,
-	};
+  public static settings = {
+    loadApp: true,
+    stayAlive: true,
+  };
 
-	public async run() {
-		const { Queue } = this.application.container.resolveBinding('Rlanz/Queue');
-		const Config = this.application.container.resolveBinding('Adonis/Core/Config');
-		const Router = this.application.container.use('Adonis/Core/Route');
-		Router.commit();
+  public async run() {
+    const Queue = this.application.container.resolveBinding('Rlanz/Queue');
+    const Config = this.application.container.resolveBinding('Adonis/Core/Config');
+    const queueConfig = Config.get('queue') as QueueConfig;
+    const Router = this.application.container.use('Adonis/Core/Route');
+    Router.commit();
 
-		if (this.queue.length === 0) this.queue = Config.get('queue').queueNames;
+    const queues = this.queue.length ? this.queue : queueConfig.queues;
 
-		await Promise.all(
-			this.queue.map((queue) =>
-				Queue.process({
-					queueName: queue,
-				})
-			)
-		);
-	}
+    await Promise.all(
+      queues.map((queue) =>
+        Queue.process({
+          queueName: queue,
+        })
+      )
+    );
+  }
 }

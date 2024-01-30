@@ -1,11 +1,6 @@
 {
-  "include": [
-    "./**/*"
-  ],
-  "exclude": [
-    "./node_modules",
-    "./build"
-  ],
+  "include": ["./**/*"],
+  "exclude": ["./node_modules", "./build"],
   "compilerOptions": {
     "allowSyntheticDefaultImports": true,
     "declaration": true,
@@ -18,8 +13,6 @@
     "skipLibCheck": true,
     "strict": true,
     "target": "ES2020",
-    "types": [
-      "@adonisjs/core"
-    ]
-  }
+    "types": ["@adonisjs/core"],
+  },
 }
