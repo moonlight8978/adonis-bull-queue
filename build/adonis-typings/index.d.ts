@@ -32,6 +32,7 @@ declare module '@ioc:Rlanz/Queue' {
         list(): Map<string, BullQueue>;
         get<K extends string>(queue: K): BullQueue | null;
         removeRepeatable(queues: string[]): Promise<void>;
+        schedule<T extends keyof JobsList>(job: T, payload: DataForJob<T>, dispatchOptions: DispatchOptions, overrides?: DispatchOverrides): Promise<void>;
     }
     export interface JobHandlerContract<TPayload = any> {
         handle(payload: TPayload): Promise<void>;
