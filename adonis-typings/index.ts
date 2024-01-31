@@ -23,6 +23,12 @@ declare module '@ioc:Rlanz/Queue' {
     queueName?: 'default' | string;
   };
 
+  export type DispatchOverrides = Partial<{
+    options: Partial<DispatchOptions>;
+    disabled: boolean;
+    payload: any;
+  }>;
+
   export type QueueConfig = {
     connection: ConnectionOptions;
     queue: QueueOptions;
@@ -36,16 +42,17 @@ declare module '@ioc:Rlanz/Queue' {
       job: K,
       payload: DataForJob<K>,
       options?: DispatchOptions
-    ): Promise<Job>;
+    ): Promise<Job | null>;
     dispatch<K extends string>(
       job: K,
       payload: DataForJob<K>,
       options?: DispatchOptions
-    ): Promise<Job>;
+    ): Promise<Job | null>;
     process(queue: { queueName?: string }): this;
     clear<K extends string>(queue: K): Promise<void>;
     list(): Map<string, BullQueue>;
-    get<K extends string>(queue: K): BullQueue;
+    get<K extends string>(queue: K): BullQueue | null;
+    removeRepeatable(queues: string[]): Promise<void>;
   }
 
   export interface JobHandlerContract {

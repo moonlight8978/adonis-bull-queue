@@ -6,10 +6,17 @@
  */
 
 import { Queue, Worker } from 'bullmq';
-import type { JobsOptions } from 'bullmq';
 import type { LoggerContract } from '@ioc:Adonis/Core/Logger';
 import type { ApplicationContract } from '@ioc:Adonis/Core/Application';
-import type { DataForJob, JobsList, QueueConfig, QueueContract } from '@ioc:Rlanz/Queue';
+import type {
+  DataForJob,
+  DispatchOptions,
+  DispatchOverrides,
+  JobsList,
+  QueueConfig,
+  QueueContract,
+} from '@ioc:Rlanz/Queue';
+import { get, merge } from 'lodash';
 
 export class BullManager implements QueueContract {
   private queues: Map<string, Queue> = new Map();
@@ -29,11 +36,18 @@ export class BullManager implements QueueContract {
     );
   }
 
-  public dispatch<K extends keyof JobsList | string>(
+  public async dispatch<K extends keyof JobsList | string>(
     job: K,
     payload: DataForJob<K>,
-    options: JobsOptions & { queueName?: string } = {}
+    options: DispatchOptions = {}
   ) {
+    const disabled = get(options, 'disabled', false);
+
+    if (disabled) {
+      this.logger.info(`Job ${job} is disabled`);
+      return null;
+    }
+
     const queueName = options.queueName || 'default';
 
     if (!this.queues.has(queueName)) {
@@ -47,7 +61,7 @@ export class BullManager implements QueueContract {
       );
     }
 
-    return this.queues.get(queueName)!.add(job, payload, {
+    return await this.queues.get(queueName)!.add(job, payload, {
       ...this.options.jobs,
       ...options,
     });
@@ -113,9 +127,51 @@ export class BullManager implements QueueContract {
 
   public get<K extends string>(queueName: K) {
     if (!this.queues.has(queueName)) {
-      throw new Error(`Queue [${queueName}] doesn't exist`);
+      this.logger.warn(`Queue [${queueName}] doesn't exist`);
+      return null;
     }
 
     return this.queues.get(queueName)!;
+  }
+
+  public async removeRepeatable(queues: string[]) {
+    await Promise.all(
+      queues.flatMap(async (name) => {
+        const queue = this.get(name);
+
+        if (!queue) {
+          return;
+        }
+
+        return await queue.getRepeatableJobs().then((jobs) =>
+          jobs.map((job) => {
+            this.logger.info(`Removing repeatable job ${job.key}`);
+            return queue.removeRepeatableByKey(job.key);
+          })
+        );
+      })
+    );
+  }
+
+  public async schedule<T extends keyof JobsList>(
+    job: T,
+    payload: DataForJob<T>,
+    dispatchOptions: DispatchOptions,
+    overrides: DispatchOverrides = {}
+  ) {
+    dispatchOptions = merge(dispatchOptions, get(overrides, 'options', {}));
+
+    if (dispatchOptions.repeat) {
+      await this.dispatch(job, payload, {
+        ...dispatchOptions,
+        repeat: {
+          ...dispatchOptions.repeat,
+          // To prevent schedule delaying until next execution
+          immediately: false,
+        },
+      });
+    } else {
+      await this.dispatch(job, payload, dispatchOptions);
+    }
   }
 }
