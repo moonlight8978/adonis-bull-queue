@@ -1,6 +1,6 @@
 {
   "name": "@munkit/adonis-bull-queue",
-  "version": "5.0.0",
+  "version": "5.0.1",
   "description": "Queue system based on BullMQ for AdonisJS",
   "homepage": "https://github.com/moonlight8978/adonis-bull-queue#readme",
   "license": "MIT",

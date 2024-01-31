@@ -78,7 +78,9 @@ declare module '@ioc:Rlanz/Queue' {
    */
   export interface JobsList {}
 
-  export const Queue: QueueContract;
+  const Queue: QueueContract;
+
+  export default Queue;
 
   export { Job };
 }
