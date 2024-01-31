@@ -33,8 +33,8 @@ declare module '@ioc:Rlanz/Queue' {
         get<K extends string>(queue: K): BullQueue | null;
         removeRepeatable(queues: string[]): Promise<void>;
     }
-    export interface JobHandlerContract {
-        handle(payload: any): Promise<void>;
+    export interface JobHandlerContract<TPayload = any> {
+        handle(payload: TPayload): Promise<void>;
         failed(): Promise<void>;
     }
     /**

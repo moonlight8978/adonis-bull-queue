@@ -55,8 +55,8 @@ declare module '@ioc:Rlanz/Queue' {
     removeRepeatable(queues: string[]): Promise<void>;
   }
 
-  export interface JobHandlerContract {
-    handle(payload: any): Promise<void>;
+  export interface JobHandlerContract<TPayload = any> {
+    handle(payload: TPayload): Promise<void>;
     failed(): Promise<void>;
   }
 
