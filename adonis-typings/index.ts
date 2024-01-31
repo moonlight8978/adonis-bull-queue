@@ -6,51 +6,76 @@
  */
 
 declare module '@ioc:Rlanz/Queue' {
-	import type { ConnectionOptions, WorkerOptions, QueueOptions, JobsOptions, Job, Queue as BullQueue } from 'bullmq';
+  import type {
+    ConnectionOptions,
+    WorkerOptions,
+    QueueOptions,
+    JobsOptions,
+    Job,
+    Queue as BullQueue,
+  } from 'bullmq';
 
-	export type DataForJob<K extends string> = K extends keyof JobsList
-		? JobsList[K]
-		: Record<string, unknown>;
+  export type DataForJob<K extends string> = K extends keyof JobsList
+    ? JobsList[K]
+    : Record<string, unknown>;
 
-	export type DispatchOptions = JobsOptions & {
-		queueName?: 'default' | string;
-	};
+  export type DispatchOptions = JobsOptions & {
+    queueName?: 'default' | string;
+  };
 
-	export type QueueConfig = {
-		connection: ConnectionOptions;
-		queue: QueueOptions;
-		worker: WorkerOptions;
-		jobs: JobsOptions;
-	};
+  export type DispatchOverrides = Partial<{
+    options: Partial<DispatchOptions>;
+    disabled: boolean;
+    payload: any;
+  }>;
 
-	interface QueueContract {
-		dispatch<K extends keyof JobsList>(
-			job: K,
-			payload: DataForJob<K>,
-			options?: DispatchOptions
-		): Promise<Job>;
-		dispatch<K extends string>(
-			job: K,
-			payload: DataForJob<K>,
-			options?: DispatchOptions
-		): Promise<Job>;
-		process(): Promise<void>;
-		clear<K extends string>(queue: K): Promise<void>;
-		list(): Promise<Map<string, BullQueue>>;
-		get(): Promise<BullQueue>;
-	}
+  export type QueueConfig = {
+    connection: ConnectionOptions;
+    queue: QueueOptions;
+    worker: WorkerOptions;
+    jobs: JobsOptions;
+    queues: string[];
+  };
 
-	export interface JobHandlerContract {
-		handle(payload: any): Promise<void>;
-		failed(): Promise<void>;
-	}
+  export interface QueueContract {
+    dispatch<K extends keyof JobsList>(
+      job: K,
+      payload: DataForJob<K>,
+      options?: DispatchOptions
+    ): Promise<Job | null>;
+    dispatch<K extends string>(
+      job: K,
+      payload: DataForJob<K>,
+      options?: DispatchOptions
+    ): Promise<Job | null>;
+    process(queue: { queueName?: string }): this;
+    clear<K extends string>(queue: K): Promise<void>;
+    list(): Map<string, BullQueue>;
+    get<K extends string>(queue: K): BullQueue | null;
+    removeRepeatable(queues: string[]): Promise<void>;
+  }
 
-	/**
-	 * An interface to define typed queues/jobs
-	 */
-	export interface JobsList {}
+  export interface JobHandlerContract {
+    handle(payload: any): Promise<void>;
+    failed(): Promise<void>;
+  }
 
-	export const Queue: QueueContract;
+  /**
+   * An interface to define typed queues/jobs
+   */
+  export interface JobsList {}
 
-	export { Job };
+  export const Queue: QueueContract;
+
+  export { Job };
+}
+
+declare module '@ioc:Adonis/Core/Application' {
+  import { QueueContract } from '@ioc:Rlanz/Queue';
+
+  interface Bindings {
+    'Rlanz/Queue': QueueContract;
+  }
+
+  interface ContainerBindings extends Bindings {}
 }
