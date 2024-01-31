@@ -1,8 +1,8 @@
 {
-  "name": "@rlanz/bull-queue",
-  "version": "1.0.6",
+  "name": "@munkit/adonis-bull-queue",
+  "version": "5.0.0",
   "description": "Queue system based on BullMQ for AdonisJS",
-  "homepage": "https://github.com/romainlanz/adonis-bull-queue#readme",
+  "homepage": "https://github.com/moonlight8978/adonis-bull-queue#readme",
   "license": "MIT",
   "keywords": [
     "adonisjs",
@@ -56,20 +56,20 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/romainlanz/adonis-bull-queue.git"
+    "url": "git+https://github.com/moonlight8978/adonis-bull-queue.git"
   },
   "bugs": {
-    "url": "https://github.com/romainlanz/adonis-bull-queue/issues"
+    "url": "https://github.com/moonlight8978/adonis-bull-queue/issues"
   },
   "adonisjs": {
     "instructions": "./build/instructions.js",
     "instructionsMd": "./build/instructions.md",
-    "types": "@rlanz/bull-queue",
+    "types": "@munkit/adonis-bull-queue",
     "providers": [
-      "@rlanz/bull-queue"
+      "@munkit/adonis-bull-queue"
     ],
     "commands": [
-      "@rlanz/bull-queue/build/commands"
+      "@munkit/adonis-bull-queue/build/commands"
     ],
     "templates": {
       "basePath": "./build/templates",

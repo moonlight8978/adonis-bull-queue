@@ -22,13 +22,13 @@ for [AdonisJS](https://adonisjs.com/).
 This package is available in the npm registry.
 
 ```bash
-npm install @rlanz/bull-queue
+npm install @munkit/adonis-bull-queue
 ```
 
 Next, configure the package by running the following command.
 
 ```bash
-node ace configure @rlanz/bull-queue
+node ace configure @munkit/adonis-bull-queue
 ```
 
 and... Voilà!
@@ -67,7 +67,9 @@ export type RegisterStripeCustomerPayload = {
   userId: string;
 };
 
-export default class RegisterStripeCustomer implements JobHandlerContract {
+export default class RegisterStripeCustomer
+  implements JobHandlerContract<RegisterStripeCustomerPayload>
+{
   constructor(public job: Job) {
     this.job = job;
   }
@@ -139,6 +141,12 @@ node ace queue:listen --queue=stripe,cloudflare
 ```
 
 Once done, you will see the message `Queue processing started`.
+
+#### Dashboard
+
+```bash
+node ace queue:dashboard --root=/queue/dashboard --port=9999
+```
 
 ## Typings
 

@@ -6,8 +6,8 @@
  */
 
 export default [
-  '@rlanz/bull-queue/build/commands/QueueListener',
-  '@rlanz/bull-queue/build/commands/QueueClear',
-  '@rlanz/bull-queue/build/commands/MakeJob',
-  '@rlanz/bull-queue/build/commands/QueueDashboard',
+  '@munkit/adonis-bull-queue/build/commands/QueueListener',
+  '@munkit/adonis-bull-queue/build/commands/QueueClear',
+  '@munkit/adonis-bull-queue/build/commands/MakeJob',
+  '@munkit/adonis-bull-queue/build/commands/QueueDashboard',
 ];
